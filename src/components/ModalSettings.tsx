@@ -1,6 +1,6 @@
 import React from 'react'
 import latest from '@maplibre/maplibre-gl-style-spec/dist/latest.json'
-import type {LightSpecification, StyleSpecification, TerrainSpecification, TransitionSpecification} from 'maplibre-gl'
+import type {LightSpecification, ProjectionSpecification, StyleSpecification, TerrainSpecification, TransitionSpecification} from 'maplibre-gl'
 import { WithTranslation, withTranslation } from 'react-i18next';
 
 import FieldArray from './FieldArray'
@@ -59,6 +59,25 @@ class ModalSettingsInternal extends React.Component<ModalSettingsInternalProps> 
     });
   }
 
+  changeProjectionProperty(property: keyof ProjectionSpecification, value: any) {
+    const projection = {
+      ...this.props.mapStyle.projection,
+    }
+
+    if (value === undefined) {
+      delete projection[property];
+    }
+    else {
+      // @ts-ignore
+      projection[property] = value;
+    }
+
+    this.props.onStyleChanged({
+      ...this.props.mapStyle,
+      projection,
+    });
+  }
+
   changeTerrainProperty(property: keyof TerrainSpecification, value: any) {
     const terrain = {
       ...this.props.mapStyle.terrain,
@@ -102,6 +121,7 @@ class ModalSettingsInternal extends React.Component<ModalSettingsInternalProps> 
     const light = this.props.mapStyle.light || {};
     const transition = this.props.mapStyle.transition || {};
     const terrain = this.props.mapStyle.terrain || {} as TerrainSpecification;
+    const projection = this.props.mapStyle.projection || {} as ProjectionSpecification;
 
     return <Modal
       data-wd-key="modal:settings"
@@ -206,6 +226,16 @@ class ModalSettingsInternal extends React.Component<ModalSettingsInternalProps> 
           options={Object.keys(latest.light.anchor.values)}
           default={latest.light.anchor.default}
           onChange={this.changeLightProperty.bind(this, "anchor")}
+        />
+
+        <FieldEnum
+          label={"projection type"}
+          fieldSpec={latest.projection.type}
+          name="projection type"
+          value={projection.type as string}
+          options={Object.keys(latest.projection.type.values)}
+          default={latest.projection.type.default}
+          onChange={this.changeProjectionProperty.bind(this, "type")}
         />
 
         <FieldColor
