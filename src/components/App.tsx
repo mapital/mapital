@@ -375,7 +375,7 @@ export default class App extends React.Component<any, AppState> {
       changedStyle.sprite = setFetchAccessToken(changedStyle.sprite, changedStyle);
     }
 
-    for (const [sourceId, source] of Object.entries(changedStyle.sources)) {
+    for (const [_sourceId, source] of Object.entries(changedStyle.sources)) {
       if (source && 'url' in source && typeof source.url === 'string') {
         source.url = setFetchAccessToken(source.url, changedStyle);
       }
