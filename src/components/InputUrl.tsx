@@ -10,16 +10,19 @@ function validate(url: string, t: TFunction): JSX.Element | undefined {
   }
 
   let error;
-  const getProtocol = (url: string) => {
+  const getUrlParams = (url: string) => {
     try {
       const urlObj = new URL(url);
-      return urlObj.protocol;
-    }
-    catch (err) {
-      return undefined;
+      const { protocol, hostname } = urlObj;
+      // Basic check against localhost; 127.0.0.1/8 and IPv6 localhost [::1]
+      const isLocal = /^(localhost|\[::1\]|127(.[0-9]{1,3}){3})/i.test(hostname);
+
+      return { protocol, isLocal };
+    } catch (err) {
+      return {};
     }
   };
-  const protocol = getProtocol(url);
+  const { protocol, isLocal } = getUrlParams(url);
   const isSsl = window.location.protocol === "https:";
 
   if (!protocol) {
@@ -40,7 +43,8 @@ function validate(url: string, t: TFunction): JSX.Element | undefined {
   else if (
     protocol &&
     protocol === "http:" &&
-    window.location.protocol === "https:"
+    window.location.protocol === "https:" &&
+    !isLocal
   ) {
     error = (
       <SmallError>
@@ -76,10 +80,10 @@ type FieldUrlState = {
 
 class FieldUrlInternal extends React.Component<FieldUrlInternalProps, FieldUrlState> {
   static defaultProps = {
-    onInput: () => {},
+    onInput: () => { },
   }
 
-  constructor (props: FieldUrlInternalProps) {
+  constructor(props: FieldUrlInternalProps) {
     super(props);
     this.state = {
       error: validate(props.value, props.t),
@@ -100,7 +104,7 @@ class FieldUrlInternal extends React.Component<FieldUrlInternalProps, FieldUrlSt
     this.props.onChange(url);
   }
 
-  render () {
+  render() {
     return (
       <div>
         <InputString
