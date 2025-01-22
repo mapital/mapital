@@ -804,11 +804,6 @@ export default class App extends React.Component<any, AppState> {
     const url = new URL(location.href);
     const modalParam = url.searchParams.get("modal");
 
-
-    console.log("HERE12", url)
-
-
-
     if (modalParam && modalParam !== "") {
       const modals = modalParam.split(",");
       const modalObj: {[key: string]: boolean} = {};
