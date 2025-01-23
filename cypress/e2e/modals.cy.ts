@@ -1,4 +1,5 @@
 import { MaputnikDriver } from "./maputnik-driver";
+import tokens from "../../src/config/tokens.json" with {type: "json"};
 
 describe("modals", () => {
   const { beforeAndAfter, when, get, then } = new MaputnikDriver();
@@ -220,7 +221,7 @@ describe("modals", () => {
 
 
 
-    it.only("style renderer change", () => {
+    it("inlcude API key when change renderer", () => {
 
       
       
@@ -232,30 +233,35 @@ describe("modals", () => {
 
       cy.get('[aria-label="MapTiler Basic"]').should('exist').click();
 
+      
       when.click("nav:settings");
 
-      cy.on("uncaught:exception", () => false); // this is due to the fact that this is an invalid style for openlayers
+      
+      // cy.on("uncaught:exception", () => false); // this is due to the fact that this is an invalid style for openlayers
       when.select("modal:settings.maputnik:renderer", "mlgljs");
       then(get.inputValue("modal:settings.maputnik:renderer")).shouldEqual(
         "mlgljs"
       );
 
-      cy.on("uncaught:exception", () => false);
+      // cy.on("uncaught:exception", () => false);
       when.select("modal:settings.maputnik:renderer", "ol");
       then(get.inputValue("modal:settings.maputnik:renderer")).shouldEqual(
         "ol"
       );
 
-      cy.on("uncaught:exception", () => false);
+      cy.intercept("GET", "https://api.maptiler.com/tiles/v3-openmaptiles/tiles.json?key=*").as("tileRequest");
+      // then(get.waitForRequest("@tileRequest")).shouldHaveStatus(403);
+
+
+      // cy.on("uncaught:exception", () => false);
       when.select("modal:settings.maputnik:renderer", "mlgljs");
       then(get.inputValue("modal:settings.maputnik:renderer")).shouldEqual(
         "mlgljs"
       );
 
-
-      
-
-
+      cy.wait("@tileRequest").its("request").its("url").should("include", `https://api.maptiler.com/tiles/v3-openmaptiles/tiles.json?key=${tokens.openmaptiles}`);
+      cy.wait("@tileRequest").its("request").its("url").should("include", `https://api.maptiler.com/tiles/v3-openmaptiles/tiles.json?key=${tokens.openmaptiles}`);
+      cy.wait("@tileRequest").its("request").its("url").should("include", `https://api.maptiler.com/tiles/v3-openmaptiles/tiles.json?key=${tokens.openmaptiles}`);
     });
     
   });
