@@ -217,6 +217,47 @@ describe("modals", () => {
         metadata: { "maputnik:renderer": "ol" },
       });
     });
+
+
+
+    it.only("style renderer change", () => {
+
+      
+      
+      when.click("modal:settings.close-modal")
+      when.click("nav:open");
+
+
+      // when.click("aria-label="MapTiler Basic"
+
+      cy.get('[aria-label="MapTiler Basic"]').should('exist').click();
+
+      when.click("nav:settings");
+
+      cy.on("uncaught:exception", () => false); // this is due to the fact that this is an invalid style for openlayers
+      when.select("modal:settings.maputnik:renderer", "mlgljs");
+      then(get.inputValue("modal:settings.maputnik:renderer")).shouldEqual(
+        "mlgljs"
+      );
+
+      cy.on("uncaught:exception", () => false);
+      when.select("modal:settings.maputnik:renderer", "ol");
+      then(get.inputValue("modal:settings.maputnik:renderer")).shouldEqual(
+        "ol"
+      );
+
+      cy.on("uncaught:exception", () => false);
+      when.select("modal:settings.maputnik:renderer", "mlgljs");
+      then(get.inputValue("modal:settings.maputnik:renderer")).shouldEqual(
+        "mlgljs"
+      );
+
+
+      
+
+
+    });
+    
   });
 
   describe("sources", () => {
