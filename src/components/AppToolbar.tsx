@@ -17,6 +17,8 @@ import maputnikLogo from 'maputnik-design/logos/logo-color.svg?inline'
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { supportedLanguages } from '../i18n';
 
+import Dropzone from 'react-dropzone';
+
 // This is required because of <https://stackoverflow.com/a/49846426>, there isn't another way to detect support that I'm aware of.
 const browser = detect();
 const colorAccessibilityFiltersEnabled = ['chrome', 'firefox'].indexOf(browser!.name) > -1;
@@ -103,6 +105,7 @@ type AppToolbarInternalProps = {
   onSetMapState(mapState: MapState): unknown
   mapState?: MapState
   renderer?: string
+  onFileSelected(...args: unknown[]): unknown
 } & WithTranslation;
 
 class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
@@ -289,6 +292,15 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
             <MdHelpOutline />
             <IconText>{t("Help")}</IconText>
           </ToolbarLink>
+
+          <Dropzone onDrop={this.props.onFileSelected}>
+            {({getRootProps, getInputProps}) => (
+              <div {...getRootProps({className: 'dropzone maputnik-toolbar-link'})}>
+                <input {...getInputProps()} />
+                {t("Drop PMTiles file here")}
+              </div>
+            )}
+          </Dropzone>
         </div>
       </div>
     </nav>
