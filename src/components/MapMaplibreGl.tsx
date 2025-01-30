@@ -15,7 +15,7 @@ import MaplibreGeocoder, { MaplibreGeocoderApi, MaplibreGeocoderApiConfig } from
 import '@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css';
 import { withTranslation, WithTranslation } from 'react-i18next'
 import i18next from 'i18next'
-import { Protocol } from "pmtiles";
+import { PMTiles, Protocol } from "pmtiles";
 
 function renderPopup(popup: JSX.Element, mountNode: ReactDOM.Container): HTMLElement {
   ReactDOM.render(popup, mountNode);
@@ -66,6 +66,7 @@ type MapMaplibreGlInternalProps = {
   }
   replaceAccessTokens(mapStyle: StyleSpecification): StyleSpecification
   onChange(value: {center: LngLat, zoom: number}): unknown
+  localPMTiles: PMTiles | null;
 } & WithTranslation;
 
 type MapMaplibreGlState = {
@@ -74,7 +75,15 @@ type MapMaplibreGlState = {
   geocoder: MaplibreGeocoder | null;
   zoomControl: ZoomControl | null;
   zoom?: number;
+  pmtilesProtocol: Protocol | null;
 };
+
+interface Metadata {
+  name?: string;
+  type?: string;
+  tilestats?: unknown;
+  vector_layers: LayerSpecification[];
+}
 
 class MapMaplibreGlInternal extends React.Component<MapMaplibreGlInternalProps, MapMaplibreGlState> {
   static defaultProps = {
@@ -93,6 +102,7 @@ class MapMaplibreGlInternal extends React.Component<MapMaplibreGlInternalProps, 
       inspect: null,
       geocoder: null,
       zoomControl: null,
+      pmtilesProtocol: new Protocol({metadata: true})
     }
     i18next.on('languageChanged', () => {
       this.forceUpdate();
@@ -134,7 +144,23 @@ class MapMaplibreGlInternal extends React.Component<MapMaplibreGlInternalProps, 
         this.state.inspect!.render();
       }, 500);
     }
-    
+
+    if (this.props.localPMTiles) {
+      const file = this.props.localPMTiles;
+      this.state.pmtilesProtocol!.add(file); // this is necessary for non-HTTP sources
+
+      if (map) {
+        (file.getMetadata() as Promise<Metadata>).then(metadata => {
+          const layerNames = metadata.vector_layers.map((e: LayerSpecification) => e.id);
+
+          // used by maplibre-gl-inspect to pick up inspectable layers
+          map.style.sourceCaches["source"]._source.vectorLayerIds = layerNames;
+        }).catch( e => {
+          console.error(`${this.props.t('Error in reading local PMTiles file')}: ${e}`);
+        });
+      }
+    }
+
   }
 
   componentDidMount() {
@@ -149,8 +175,8 @@ class MapMaplibreGlInternal extends React.Component<MapMaplibreGlInternalProps, 
       localIdeographFontFamily: false
     } satisfies MapOptions;
 
-    const protocol = new Protocol({metadata: true});
-    MapLibreGl.addProtocol("pmtiles",protocol.tile);
+    MapLibreGl.addProtocol("pmtiles", this.state.pmtilesProtocol!.tile);
+
     const map = new MapLibreGl.Map(mapOpts);
 
     const mapViewChange = () => {

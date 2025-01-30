@@ -17,6 +17,8 @@ import maputnikLogo from 'maputnik-design/logos/logo-color.svg?inline'
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { supportedLanguages } from '../i18n';
 
+import { default as Dropzone, FileRejection } from 'react-dropzone';
+
 // This is required because of <https://stackoverflow.com/a/49846426>, there isn't another way to detect support that I'm aware of.
 const browser = detect();
 const colorAccessibilityFiltersEnabled = ['chrome', 'firefox'].indexOf(browser!.name) > -1;
@@ -103,6 +105,7 @@ type AppToolbarInternalProps = {
   onSetMapState(mapState: MapState): unknown
   mapState?: MapState
   renderer?: string
+  onLocalPMTilesSelected(file: File): unknown
 } & WithTranslation;
 
 class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
@@ -132,6 +135,21 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
       const el = document.querySelector("#skip-target-"+target) as HTMLButtonElement;
       el.focus();
     }
+  }
+
+  onFileSelected = (e: File[]) => {
+    const file = e[0];
+    this.props.onLocalPMTilesSelected(file);
+  }
+
+  onFileRejected = (r: FileRejection[]) => {
+    const errorMessageLine = r.map(e => {
+      return e.errors.map(f => f.message).join("\n")
+    }).join("\n");
+    console.error("Dropzone file rejected:", errorMessageLine);
+
+    const alertMessage = this.props.t("File type is not supported");
+    alert(alertMessage);
   }
 
   render() {
@@ -173,6 +191,10 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
         disabled: !colorAccessibilityFiltersEnabled,
       },
     ];
+
+    const acceptedFileTypes = {
+      'application/octet-stream': [".pmtiles"]
+    }
 
     const currentView = views.find((view) => {
       return view.id === this.props.mapState;
@@ -289,6 +311,15 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
             <MdHelpOutline />
             <IconText>{t("Help")}</IconText>
           </ToolbarLink>
+
+          <Dropzone onDropAccepted={this.onFileSelected} onDropRejected={this.onFileRejected} accept={acceptedFileTypes}>
+            {({getRootProps, getInputProps}) => (
+              <div {...getRootProps({className: 'dropzone maputnik-toolbar-link'})}>
+                <input {...getInputProps()} />
+                {t("Drop PMTiles file here")}
+              </div>
+            )}
+          </Dropzone>
         </div>
       </div>
     </nav>
