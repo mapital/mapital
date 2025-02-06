@@ -65,6 +65,7 @@
     "react-collapse": "^5.1.1",
     "react-color": "^2.19.3",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.3.5",
     "react-file-reader-input": "^2.0.0",
     "react-i18next": "^15.4.0",
     "react-icon-base": "^2.1.2",
