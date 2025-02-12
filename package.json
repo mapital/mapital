@@ -144,6 +144,6 @@
     "typescript-eslint": "^8.22.0",
     "uuid": "^11.0.5",
     "vite": "^6.1.0",
-    "vite-plugin-istanbul": "^6.0.2"
+    "vite-plugin-istanbul": "^7.0.0"
   }
 }
