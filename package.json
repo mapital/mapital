@@ -125,7 +125,7 @@
     "@types/wicg-file-system-access": "^2023.10.5",
     "@vitejs/plugin-react": "^4.3.4",
     "cors": "^2.8.5",
-    "cypress": "^14.0.2",
+    "cypress": "^14.0.3",
     "cypress-plugin-tab": "^1.0.5",
     "eslint": "^9.19.0",
     "eslint-plugin-react": "^7.37.4",
