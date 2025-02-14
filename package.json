@@ -136,7 +136,7 @@
     "istanbul-lib-coverage": "^3.2.2",
     "postcss": "^8.5.1",
     "react-hot-loader": "^4.13.1",
-    "sass": "^1.83.4",
+    "sass": "^1.85.0",
     "stylelint": "^16.14.1",
     "stylelint-config-recommended-scss": "^14.1.0",
     "stylelint-scss": "^6.11.0",
